@@ -1,0 +1,45 @@
+# Handy
+
+Webcam hand and finger tracking in 3D, in the browser. Step one of a hand-driven light-and-sound effect.
+
+Open the page, click **Start camera**, allow the camera. Video is processed locally and never leaves your computer.
+
+## What it does
+
+- Tracks up to two hands, 21 joints each (wrist plus four joints per finger), using Google's MediaPipe Hand Landmarker.
+- Draws a green skeleton with red joints over a mirrored video.
+- Shows a small 3D view you can drag to rotate.
+- Picks between cameras when more than one is connected.
+
+## Data for later steps
+
+Every frame is available from `window.handy`:
+
+```js
+handy.latest            // most recent frame
+handy.on(frame => {})   // called on every frame, returns an unsubscribe function
+```
+
+A frame looks like:
+
+```js
+{
+  cameraId, timestamp, width, height,
+  hands: [{
+    side: "Left" | "Right",   // the person's actual hand
+    score,                    // confidence 0..1
+    points: [{x, y, z}],      // 21 joints; x,y in 0..1 screen space (mirrored), z = depth relative to wrist
+    world:  [{x, y, z}],      // 21 joints in metres around the hand's centre
+    joints: { wrist, thumbTip, indexTip, middleTip, ringTip, pinkyTip, ... },
+    pinch,                    // cm between thumb tip and index tip
+  }]
+}
+```
+
+## Depth
+
+With one camera, `z` is depth relative to the wrist, not true distance from the camera. `js/tracker.js` runs one `HandTracker` per camera, so a second camera can be added later and both views triangulated for true depth.
+
+## Run locally
+
+Any static server works, for example `python3 -m http.server` in this folder, then open http://localhost:8000. Camera access needs `localhost` or HTTPS.
