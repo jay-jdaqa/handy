@@ -1,6 +1,7 @@
 import { HandTracker, listCameras, JOINT_NAMES } from "./tracker.js";
 import { drawOverlay } from "./overlay.js";
 import { HandView3D } from "./view3d.js";
+import { FingerFire } from "./fire.js";
 
 const $ = (id) => document.getElementById(id);
 const video = $("video");
@@ -13,6 +14,10 @@ const fpsEl = $("fps");
 
 const tracker = new HandTracker({ cameraId: "cam0", video });
 const view3d = new HandView3D($("view3d"));
+const fireCanvas = $("fire");
+const fire = new FingerFire(fireCanvas);
+$("fireOn").addEventListener("change", (e) => (fire.enabled = e.target.checked));
+$("fireAll").addEventListener("change", (e) => (fire.allFingers = e.target.checked));
 
 // Public API for later steps (lines, sound) and for poking at in the console:
 //   handy.latest                     -> most recent frame
@@ -34,10 +39,13 @@ tracker.addEventListener("frame", (e) => {
   if (overlay.width !== frame.width || overlay.height !== frame.height) {
     overlay.width = frame.width;
     overlay.height = frame.height;
+    fireCanvas.width = frame.width;
+    fireCanvas.height = frame.height;
     $("stage").style.aspectRatio = `${frame.width} / ${frame.height}`;
   }
   drawOverlay(overlay, frame);
   view3d.update(frame);
+  fire.update(frame);
 });
 
 // Text readout at ~10 Hz so it stays readable.

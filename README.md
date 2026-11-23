@@ -9,6 +9,7 @@ Open the page, click **Start camera**, allow the camera. Video is processed loca
 - Tracks up to two hands, 21 joints each (wrist plus four joints per finger), using Google's MediaPipe Hand Landmarker.
 - Draws a green skeleton with red joints over a mirrored video.
 - Shows a small 3D view you can drag to rotate.
+- Fire pours from your index fingertips (switch at the top lights all ten), flaring when you move fast.
 - Picks between cameras when more than one is connected.
 
 ## Data for later steps
