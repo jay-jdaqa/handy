@@ -56,15 +56,18 @@ export class FingerFire {
           vx = prev.vx * 0.5 + ((x - prev.x) / dt) * 0.5;
           vy = prev.vy * 0.5 + ((y - prev.y) / dt) * 0.5;
         }
-        this.tips.set(key, { x, y, vx, vy, t: now, px: prev?.x ?? x, py: prev?.y ?? y, alive: true });
+        // Size flames to the hand on screen, so a close-up hand on a phone gets big flames.
+        const palm = Math.hypot((hand.points[0].x - hand.points[9].x) * w, (hand.points[0].y - hand.points[9].y) * h);
+        const scale = Math.max(0.4, palm / 140);
+        this.tips.set(key, { x, y, vx, vy, t: now, px: prev?.x ?? x, py: prev?.y ?? y, scale });
       }
     }
     for (const [key, tip] of this.tips) if (!seen.has(key)) this.tips.delete(key);
   }
 
   _emit(tip, dt) {
-    const scale = this.canvas.width / 1280;
-    const speed = Math.hypot(tip.vx, tip.vy) / scale; // px/s at 1280 wide
+    const scale = tip.scale;
+    const speed = Math.hypot(tip.vx, tip.vy) / scale; // px/s relative to hand size
     const flare = Math.min(1, speed / 1500);           // 0 calm .. 1 fast flick
     const rate = (this.allFingers ? 90 : 160) * (1 + flare * 2);
     const n = Math.min(40, Math.round(rate * dt + Math.random()));
@@ -82,6 +85,7 @@ export class FingerFire {
         size: (18 + Math.random() * 18) * scale * (1 + flare * 0.8),
         life, age: 0,
         wobble: Math.random() * Math.PI * 2,
+        scale,
       });
     }
   }
@@ -97,7 +101,6 @@ export class FingerFire {
     // After emitting, the segment is consumed: future spawns start at the current tip.
     for (const tip of this.tips.values()) { tip.px = tip.x; tip.py = tip.y; }
 
-    const scale = canvas.width / 1280;
     ctx.globalCompositeOperation = "lighter";
     const ps = this.particles;
     let j = 0;
@@ -106,6 +109,7 @@ export class FingerFire {
       p.age += dt;
       if (p.age >= p.life) continue;
       const t = p.age / p.life;
+      const scale = p.scale;
       p.wobble += dt * 8;
       p.vx += Math.sin(p.wobble) * 40 * scale * dt; // flicker
       p.vy -= 220 * scale * dt;                       // buoyancy: flames rise
@@ -116,7 +120,7 @@ export class FingerFire {
       // Pass through the white-hot stage quickly, linger in orange/red.
       const sprite = SPRITES[Math.min(SPRITES.length - 1, Math.floor(Math.sqrt(t) * SPRITES.length))];
       // Additive blending stacks up fast, so each particle stays fairly faint.
-      ctx.globalAlpha = 0.35 * (t < 0.1 ? t / 0.1 : 1 - (t - 0.1) / 0.9);
+      ctx.globalAlpha = 0.6 * (t < 0.1 ? t / 0.1 : 1 - (t - 0.1) / 0.9);
       ctx.drawImage(sprite, p.x - size, p.y - size, size * 2, size * 2);
       ps[j++] = p;
     }

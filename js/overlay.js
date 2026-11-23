@@ -6,7 +6,7 @@ export function drawOverlay(canvas, frame, { showLabels = true } = {}) {
   const w = canvas.width, h = canvas.height;
   ctx.clearRect(0, 0, w, h);
   if (!frame) return;
-  const scale = w / 1280; // keep line weights consistent across resolutions
+  const scale = Math.min(w, h) / 720; // consistent line weights in landscape and portrait
 
   for (const hand of frame.hands) {
     const P = hand.points.map((p) => [p.x * w, p.y * h, p.z]);
