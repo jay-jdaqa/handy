@@ -1,7 +1,8 @@
 import { HandTracker, listCameras, JOINT_NAMES } from "./tracker.js";
-import { drawOverlay } from "./overlay.js?v=3";
+import { drawOverlay } from "./overlay.js?v=4";
 import { HandView3D } from "./view3d.js";
-import { FingerFire } from "./fire.js?v=3";
+import { FingerFire } from "./fire.js?v=4";
+import { FingerFlowers } from "./flowers.js?v=4";
 
 const $ = (id) => document.getElementById(id);
 const video = $("video");
@@ -16,8 +17,17 @@ const tracker = new HandTracker({ cameraId: "cam0", video });
 const view3d = new HandView3D($("view3d"));
 const fireCanvas = $("fire");
 const fire = new FingerFire(fireCanvas);
-$("fireOn").addEventListener("change", (e) => (fire.enabled = e.target.checked));
-$("fireAll").addEventListener("change", (e) => (fire.allFingers = e.target.checked));
+const flowerCanvas = $("flowers");
+const flowers = new FingerFlowers(flowerCanvas);
+// Glinda Mode swaps fire for flowers; the Fire switch turns whichever effect is active on or off.
+function applyEffects() {
+  const on = $("fireOn").checked, glinda = $("glinda").checked;
+  fire.enabled = on && !glinda;
+  flowers.enabled = on && glinda;
+  fire.allFingers = flowers.allFingers = $("fireAll").checked;
+}
+["fireOn", "glinda", "fireAll"].forEach((id) => $(id).addEventListener("change", applyEffects));
+applyEffects();
 
 // Public API for later steps (lines, sound) and for poking at in the console:
 //   handy.latest                     -> most recent frame
@@ -41,11 +51,14 @@ tracker.addEventListener("frame", (e) => {
     overlay.height = frame.height;
     fireCanvas.width = frame.width;
     fireCanvas.height = frame.height;
+    flowerCanvas.width = frame.width;
+    flowerCanvas.height = frame.height;
     $("stage").style.aspectRatio = `${frame.width} / ${frame.height}`;
   }
   drawOverlay(overlay, frame);
   view3d.update(frame);
   fire.update(frame);
+  flowers.update(frame);
 });
 
 // Text readout at ~10 Hz so it stays readable.

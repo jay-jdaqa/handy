@@ -19,6 +19,7 @@
     <h1>Handy</h1>
     <select id="camera" hidden title="Camera"></select>
     <label class="toggle"><input type="checkbox" id="fireOn" checked> Fire</label>
+    <label class="toggle glinda"><input type="checkbox" id="glinda"> Glinda Mode</label>
     <label class="toggle"><input type="checkbox" id="fireAll"> All fingers</label>
     <span id="fps"></span>
   </header>
@@ -28,6 +29,7 @@
       <video id="video" playsinline muted></video>
       <canvas id="overlay"></canvas>
       <canvas id="fire"></canvas>
+      <canvas id="flowers"></canvas>
       <div id="intro">
         <p>Tracks both hands and all ten fingers in 3D from your webcam. Video stays on your computer.</p>
         <button id="start">Start camera</button>
@@ -41,6 +43,6 @@
     </aside>
   </main>
 
-  <script type="module" src="js/main.js?v=3"></script>
+  <script type="module" src="js/main.js?v=4"></script>
 </body>
 </html>

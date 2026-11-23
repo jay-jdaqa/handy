@@ -14,11 +14,13 @@ h1 { font-size: 18px; margin: 0; letter-spacing: 0.02em; }
 #fps { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
 .toggle { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); cursor: pointer; user-select: none; }
 .toggle input { accent-color: #ff8a1f; }
+.toggle.glinda input { accent-color: #ff5fa8; }
+.toggle.glinda:has(input:checked) { color: #ff9cd0; }
 select { background: var(--panel); color: var(--text); border: 1px solid #2a3142; border-radius: 6px; padding: 4px 8px; }
 
 main { display: flex; gap: 16px; padding: 0 16px 16px; align-items: flex-start; }
 #stage { position: relative; flex: 1 1 auto; aspect-ratio: 16 / 9; max-height: calc(100vh - 70px); background: #000; border-radius: 10px; overflow: hidden; }
-#video, #overlay, #fire { position: absolute; inset: 0; width: 100%; height: 100%; }
+#video, #overlay, #fire, #flowers { position: absolute; inset: 0; width: 100%; height: 100%; }
 #video { transform: scaleX(-1); object-fit: fill; } /* mirrored, like a mirror; overlay is already in mirrored coords */
 
 #intro { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; gap: 8px; background: rgba(11,14,20,0.85); }

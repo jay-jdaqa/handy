@@ -24,6 +24,8 @@ const SPRITES = [
   makeSprite(64, [[0, "rgba(200,50,10,0.6)"], [0.6, "rgba(120,20,5,0.25)"], [1, "rgba(60,0,0,0)"]]),
 ];
 
+// Base class: follows fingertips and runs the animation loop. Subclasses
+// (see flowers.js) override _emit and _draw.
 export class FingerFire {
   constructor(canvas) {
     this.canvas = canvas;
@@ -59,7 +61,7 @@ export class FingerFire {
         // Size flames to the hand on screen, so a close-up hand on a phone gets big flames.
         const palm = Math.hypot((hand.points[0].x - hand.points[9].x) * w, (hand.points[0].y - hand.points[9].y) * h);
         const scale = Math.max(0.4, palm / 140);
-        this.tips.set(key, { x, y, vx, vy, t: now, px: prev?.x ?? x, py: prev?.y ?? y, scale });
+        this.tips.set(key, { x, y, vx, vy, t: now, px: prev?.x ?? x, py: prev?.y ?? y, scale, acc: prev?.acc ?? 0, sacc: prev?.sacc ?? 0 });
       }
     }
     for (const [key, tip] of this.tips) if (!seen.has(key)) this.tips.delete(key);
@@ -101,6 +103,14 @@ export class FingerFire {
     // After emitting, the segment is consumed: future spawns start at the current tip.
     for (const tip of this.tips.values()) { tip.px = tip.x; tip.py = tip.y; }
 
+    this._draw(dt);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+    requestAnimationFrame(this._tick);
+  };
+
+  _draw(dt) {
+    const { ctx } = this;
     ctx.globalCompositeOperation = "lighter";
     const ps = this.particles;
     let j = 0;
@@ -125,7 +135,5 @@ export class FingerFire {
       ps[j++] = p;
     }
     ps.length = j;
-    ctx.globalAlpha = 1;
-    requestAnimationFrame(this._tick);
-  };
+  }
 }
