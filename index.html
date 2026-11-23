@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Handy</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=5">
   <script type="importmap">
     {
       "imports": {
@@ -26,10 +26,10 @@
 
   <main>
     <section id="stage">
-      <video id="video" playsinline muted></video>
-      <canvas id="overlay"></canvas>
-      <canvas id="fire"></canvas>
-      <canvas id="flowers"></canvas>
+      <video id="video" class="layer" playsinline muted></video>
+      <canvas id="overlay" class="layer"></canvas>
+      <canvas id="fire" class="layer"></canvas>
+      <canvas id="flowers" class="layer"></canvas>
       <div id="intro">
         <p>Tracks both hands and all ten fingers in 3D from your webcam. Video stays on your computer.</p>
         <button id="start">Start camera</button>
@@ -43,6 +43,6 @@
     </aside>
   </main>
 
-  <script type="module" src="js/main.js?v=4"></script>
+  <script type="module" src="js/main.js?v=5"></script>
 </body>
 </html>

@@ -1,8 +1,8 @@
 import { HandTracker, listCameras, JOINT_NAMES } from "./tracker.js";
-import { drawOverlay } from "./overlay.js?v=4";
+import { drawOverlay } from "./overlay.js?v=5";
 import { HandView3D } from "./view3d.js";
-import { FingerFire } from "./fire.js?v=4";
-import { FingerFlowers } from "./flowers.js?v=4";
+import { FingerFire } from "./fire.js?v=5";
+import { FingerFlowers } from "./flowers.js?v=5";
 
 const $ = (id) => document.getElementById(id);
 const video = $("video");
