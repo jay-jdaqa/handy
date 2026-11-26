@@ -1,8 +1,9 @@
-import { HandTracker, listCameras, JOINT_NAMES } from "./tracker.js";
-import { drawOverlay } from "./overlay.js?v=5";
+import { HandTracker, listCameras, JOINT_NAMES } from "./tracker.js?v=6";
+import { drawOverlay } from "./overlay.js?v=6";
 import { HandView3D } from "./view3d.js";
-import { FingerFire } from "./fire.js?v=5";
-import { FingerFlowers } from "./flowers.js?v=5";
+import { FingerFire } from "./fire.js?v=6";
+import { FingerFlowers } from "./flowers.js?v=6";
+import { HandPuppets } from "./puppets.js?v=6";
 
 const $ = (id) => document.getElementById(id);
 const video = $("video");
@@ -19,14 +20,17 @@ const fireCanvas = $("fire");
 const fire = new FingerFire(fireCanvas);
 const flowerCanvas = $("flowers");
 const flowers = new FingerFlowers(flowerCanvas);
+const puppetCanvas = $("puppets");
+const puppets = new HandPuppets(puppetCanvas);
 // Glinda Mode swaps fire for flowers; the Fire switch turns whichever effect is active on or off.
 function applyEffects() {
   const on = $("fireOn").checked, glinda = $("glinda").checked;
   fire.enabled = on && !glinda;
   flowers.enabled = on && glinda;
   fire.allFingers = flowers.allFingers = $("fireAll").checked;
+  puppets.enabled = $("puppetsOn").checked;
 }
-["fireOn", "glinda", "fireAll"].forEach((id) => $(id).addEventListener("change", applyEffects));
+["fireOn", "glinda", "fireAll", "puppetsOn"].forEach((id) => $(id).addEventListener("change", applyEffects));
 applyEffects();
 
 // Public API for later steps (lines, sound) and for poking at in the console:
@@ -53,12 +57,16 @@ tracker.addEventListener("frame", (e) => {
     fireCanvas.height = frame.height;
     flowerCanvas.width = frame.width;
     flowerCanvas.height = frame.height;
+    puppetCanvas.width = frame.width;
+    puppetCanvas.height = frame.height;
     $("stage").style.aspectRatio = `${frame.width} / ${frame.height}`;
   }
-  drawOverlay(overlay, frame);
+  // Puppets cover the hands, so the skeleton is hidden while they are on.
+  drawOverlay(overlay, frame, { showSkeleton: !puppets.enabled });
   view3d.update(frame);
   fire.update(frame);
   flowers.update(frame);
+  puppets.update(frame);
 });
 
 // Text readout at ~10 Hz so it stays readable.
@@ -69,7 +77,7 @@ setInterval(() => {
   if (!f.hands.length) { dataEl.textContent = "No hands in view"; return; }
   dataEl.textContent = f.hands.map((h) => {
     const t = h.joints.indexTip;
-    return `${h.side} hand  (${(h.score * 100).toFixed(0)}%)\n` +
+    return `Hand ${h.id + 1}, ${h.side.toLowerCase()}  (${(h.score * 100).toFixed(0)}%)\n` +
       `  index tip  x ${t.x.toFixed(3)}  y ${t.y.toFixed(3)}  z ${t.z.toFixed(3)}\n` +
       `  pinch      ${h.pinch?.toFixed(1)} cm`;
   }).join("\n\n");

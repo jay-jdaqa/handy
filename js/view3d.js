@@ -1,7 +1,7 @@
 // Small rotatable 3D view of both hands (drag to orbit, scroll to zoom).
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { CONNECTIONS, FINGERTIPS } from "./tracker.js";
+import { CONNECTIONS, FINGERTIPS } from "./tracker.js?v=6";
 
 const HAND_COLORS = { Left: 0x4fc3ff, Right: 0xffb347 };
 

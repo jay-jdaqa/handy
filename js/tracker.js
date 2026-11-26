@@ -6,6 +6,7 @@
 //   {
 //     cameraId, timestamp, width, height,
 //     hands: [{
+//       id,                          // stable 0..7 while the hand stays in view
 //       side: "Left" | "Right",      // the person's actual hand
 //       score,                       // handedness confidence 0..1
 //       points: [{x, y, z}] x21,     // x,y in 0..1 screen space (mirrored, as you see yourself),
@@ -44,14 +45,16 @@ export const CONNECTIONS = [
   [13, 17], [0, 17], [17, 18], [18, 19], [19, 20],
 ];
 
-let landmarkerPromise = null;
+// Up to 8 hands, so a few people can play at once. Each hand gets a stable
+// `id` (0..7) that follows it from frame to frame, so effects keep their colour.
+export const MAX_HANDS = 8;
 
 async function createLandmarker() {
   const fileset = await FilesetResolver.forVisionTasks(WASM_URL);
   const opts = (delegate) => ({
     baseOptions: { modelAssetPath: MODEL_URL, delegate },
     runningMode: "VIDEO",
-    numHands: 2,
+    numHands: MAX_HANDS,
     minHandDetectionConfidence: 0.5,
     minHandPresenceConfidence: 0.5,
     minTrackingConfidence: 0.5,
@@ -83,6 +86,7 @@ export class HandTracker extends EventTarget {
     this.fps = 0;
     this._lastVideoTime = -1;
     this._lastTs = 0;
+    this._tracks = []; // [{id, x, y, t}] last known palm centre of each hand id
   }
 
   async start(deviceId) {
@@ -142,7 +146,8 @@ export class HandTracker extends EventTarget {
       const pinch = world.length ? dist3(world[4], world[8]) * 100 : null;
       return { side, score: cat?.score ?? 0, points, world, joints, pinch };
     });
-    hands.sort((a, b) => (a.side < b.side ? -1 : 1));
+    this._assignIds(hands, timestamp);
+    hands.sort((a, b) => a.id - b.id);
     return {
       cameraId: this.cameraId,
       timestamp,
@@ -152,6 +157,43 @@ export class HandTracker extends EventTarget {
     };
   }
 }
+
+// Match each hand to the nearest hand from recent frames by palm centre, so ids
+// (and puppet colours) stay put while hands move. Unmatched hands take the lowest
+// free id. A hand that drops out briefly keeps its id for a second.
+HandTracker.prototype._assignIds = function (hands, now) {
+  const KEEP_MS = 1000, MAX_JUMP = 0.25;
+  this._tracks = this._tracks.filter((t) => now - t.t < KEEP_MS);
+  const centres = hands.map((h) => ({
+    x: (h.points[0].x + h.points[9].x) / 2,
+    y: (h.points[0].y + h.points[9].y) / 2,
+  }));
+  const pairs = [];
+  hands.forEach((_, i) => this._tracks.forEach((t, k) => {
+    const d = Math.hypot(centres[i].x - t.x, centres[i].y - t.y);
+    if (d < MAX_JUMP) pairs.push([d, i, k]);
+  }));
+  pairs.sort((a, b) => a[0] - b[0]);
+  const handTaken = new Set(), trackTaken = new Set();
+  for (const [, i, k] of pairs) {
+    if (handTaken.has(i) || trackTaken.has(k)) continue;
+    handTaken.add(i); trackTaken.add(k);
+    hands[i].id = this._tracks[k].id;
+  }
+  const used = new Set(this._tracks.map((t) => t.id));
+  hands.forEach((h) => {
+    if (h.id != null) return;
+    let id = 0;
+    while (used.has(id) && id < MAX_HANDS * 4) id++;
+    used.add(id);
+    h.id = id;
+  });
+  hands.forEach((h, i) => {
+    const t = this._tracks.find((t) => t.id === h.id);
+    if (t) Object.assign(t, centres[i], { t: now });
+    else this._tracks.push({ id: h.id, ...centres[i], t: now });
+  });
+};
 
 export function dist3(a, b) {
   const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;

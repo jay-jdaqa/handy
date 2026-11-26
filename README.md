@@ -6,8 +6,9 @@ Open the page, click **Start camera**, allow the camera. Video is processed loca
 
 ## What it does
 
-- Tracks up to two hands, 21 joints each (wrist plus four joints per finger), using Google's MediaPipe Hand Landmarker.
+- Tracks up to eight hands, 21 joints each (wrist plus four joints per finger), using Google's MediaPipe Hand Landmarker.
 - Draws a green skeleton with red joints over a mirrored video.
+- **Puppets** switch: a felt sock puppet on every hand, each in its own colour. The fingers are the top jaw and the thumb the bottom jaw, so the mouth opens as you open your hand. Googly eyes look the way your fingers point.
 - Shows a small 3D view you can drag to rotate.
 - Fire pours from your index fingertips (switch at the top lights all ten), flaring when you move fast.
 - Glinda Mode swaps the fire for pink blossoms that bud, bloom and drift down with sparkles.
@@ -28,6 +29,7 @@ A frame looks like:
 {
   cameraId, timestamp, width, height,
   hands: [{
+    id,                       // 0..7, stays with the same hand while it is in view
     side: "Left" | "Right",   // the person's actual hand
     score,                    // confidence 0..1
     points: [{x, y, z}],      // 21 joints; x,y in 0..1 screen space (mirrored), z = depth relative to wrist

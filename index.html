@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Handy</title>
-  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/style.css?v=6">
   <script type="importmap">
     {
       "imports": {
@@ -21,6 +21,7 @@
     <label class="toggle"><input type="checkbox" id="fireOn" checked> Fire</label>
     <label class="toggle glinda"><input type="checkbox" id="glinda"> Glinda Mode</label>
     <label class="toggle"><input type="checkbox" id="fireAll"> All fingers</label>
+    <label class="toggle puppet"><input type="checkbox" id="puppetsOn"> Puppets</label>
     <span id="fps"></span>
   </header>
 
@@ -28,10 +29,11 @@
     <section id="stage">
       <video id="video" class="layer" playsinline muted></video>
       <canvas id="overlay" class="layer"></canvas>
+      <canvas id="puppets" class="layer"></canvas>
       <canvas id="fire" class="layer"></canvas>
       <canvas id="flowers" class="layer"></canvas>
       <div id="intro">
-        <p>Tracks both hands and all ten fingers in 3D from your webcam. Video stays on your computer.</p>
+        <p>Tracks up to eight hands and every finger in 3D from your webcam. Video stays on your computer.</p>
         <button id="start">Start camera</button>
         <p id="status"></p>
       </div>
@@ -43,6 +45,6 @@
     </aside>
   </main>
 
-  <script type="module" src="js/main.js?v=5"></script>
+  <script type="module" src="js/main.js?v=6"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 // Glinda Mode: pink blossoms bud at the fingertips, bloom, then drift down,
 // trailing little sparkles. Reuses FingerFire's fingertip tracking and loop.
-import { FingerFire } from "./fire.js?v=5";
+import { FingerFire } from "./fire.js?v=6";
 
 const MAX_FLOWERS = 260;
 const MAX_SPARKLES = 600;
