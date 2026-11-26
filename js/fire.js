@@ -1,6 +1,6 @@
 // Particle flames that pour out of fingertips. Draws on its own canvas layer,
 // animating every display frame so flames stay smooth between tracking frames.
-import { FINGERTIPS } from "./tracker.js";
+import { FINGERTIPS } from "./tracker.js?v=6";
 
 const MAX_PARTICLES = 2500;
 
@@ -46,7 +46,7 @@ export class FingerFire {
       const tips = this.allFingers ? FINGERTIPS : [8];
       for (const i of tips) {
         const p = hand.points[i];
-        const key = `${hand.side}-${i}`;
+        const key = `${hand.id}-${i}`;
         seen.add(key);
         const x = p.x * w, y = p.y * h;
         const prev = this.tips.get(key);

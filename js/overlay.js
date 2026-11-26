@@ -1,11 +1,11 @@
 // Draws the green skeleton and red joints over the video, in screen space.
-import { CONNECTIONS, FINGERTIPS } from "./tracker.js";
+import { CONNECTIONS, FINGERTIPS } from "./tracker.js?v=6";
 
-export function drawOverlay(canvas, frame, { showLabels = true } = {}) {
+export function drawOverlay(canvas, frame, { showLabels = true, showSkeleton = true } = {}) {
   const ctx = canvas.getContext("2d");
   const w = canvas.width, h = canvas.height;
   ctx.clearRect(0, 0, w, h);
-  if (!frame) return;
+  if (!frame || !showSkeleton) return;
   const scale = Math.min(w, h) / 720; // consistent line weights in landscape and portrait
 
   for (const hand of frame.hands) {
